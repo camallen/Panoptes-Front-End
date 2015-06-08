@@ -78,6 +78,7 @@ module.exports = React.createClass
     {attachment, targetAttachment, offset, arrowStyle}
 
   componentWillReceiveProps: (nextProps) ->
+    @horribleRetinasHack nextProps if nextProps.workflow.id == '1039'
     unless nextProps.annotation is @props.annotation
       @selectMark null, null
     @handleResize()
@@ -314,4 +315,12 @@ module.exports = React.createClass
     height = Math.min maxHeight, height
     viewbox = [x,y,width,height].join ' '
     @setState {viewbox}, @handleResize
+
+  horribleRetinasHack: ({annotation}) ->
+    
+    if annotation?.task in ['T4', 'T5']
+      rectangle = annotation.value[0] for annotation in classification.annotations when annotation.task is 'T1'
+      @crop rectangle.x, rectangle.y, rectangle.width, rectangle.height if rectangle?
+    else
+      @crop()
 
