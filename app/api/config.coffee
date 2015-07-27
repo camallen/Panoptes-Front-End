@@ -20,7 +20,7 @@ SUGAR_HOSTS =
   staging: 'https://notifications-staging.zooniverse.org'
 
 RETINA_WORKFLOW_IDS =
-  production: 'TODO'
+  production: '162'
   staging: '1039'
 
 
@@ -45,4 +45,3 @@ module.exports =
   talkHost: talkFromBrowser ? talkFromShell ? TALK_HOSTS[env]
   sugarHost: sugarFromBrowser ? sugarFromShell ? SUGAR_HOSTS[env]
   retinaWorkflowId: RETINA_WORKFLOW_IDS[env]
-
