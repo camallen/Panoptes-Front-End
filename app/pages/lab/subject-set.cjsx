@@ -258,9 +258,10 @@ EditSubjectSetPage = React.createClass
 
     subjects = []
     for metadata in metadatas
-      locations = @_findFilesInMetadata metadata
-      unless locations.length is 0
-        subjects.push {locations, metadata}
+      subject_data = @_findFilesInMetadata metadata
+      unless subject_data.length is 0
+        subject_data.metadata = metadata
+        subjects.push subject_data...
 
     @state.manifests[fileName] = {errors, subjects}
     @forceUpdate()
@@ -268,9 +269,15 @@ EditSubjectSetPage = React.createClass
   _findFilesInMetadata: (metadata) ->
     filesInMetadata = []
     for key, value of metadata
-      filesInValue = value.match? ///([^#{INVALID_FILENAME_CHARS.join ''}]+(?:#{VALID_SUBJECT_EXTENSIONS.join '|'}))///gi
+      filesInValue = value.match? ///(^https?:\/\/.+(?:#{VALID_SUBJECT_EXTENSIONS.join '|'}))///gi
       if filesInValue?
-        filesInMetadata.push filesInValue...
+        external_subject = true
+      else
+        external_subject = false
+        filesInValue = value.match? ///([^#{INVALID_FILENAME_CHARS.join ''}]+(?:#{VALID_SUBJECT_EXTENSIONS.join '|'}))///gi
+
+      if filesInValue?
+        filesInMetadata.push { external: external_subject, locations: filesInValue }
     filesInMetadata
 
   handleRemoveManifest: (name) ->

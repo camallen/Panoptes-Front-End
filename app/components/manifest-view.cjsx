@@ -10,16 +10,19 @@ separateSubjects = (subjects, files, tooBig) ->
 
   for subject in subjects
     allLocationsHaveFiles = true
-    for location in subject.locations
-      unless location of files
-        missingFiles.push location
-        allLocationsHaveFiles = false
-      if location of tooBig
-        tooBigFiles.push location
-    if allLocationsHaveFiles
+    if subject.external
       ready.push subject
     else
-      incomplete.push subject
+      for location in subject.locations
+        unless location of files
+          missingFiles.push location
+          allLocationsHaveFiles = false
+        if location of tooBig
+          tooBigFiles.push location
+      if allLocationsHaveFiles
+        ready.push subject
+      else
+        incomplete.push subject
 
   {ready, incomplete, missingFiles, tooBigFiles}
 
