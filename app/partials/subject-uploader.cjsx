@@ -55,6 +55,8 @@ module.exports = React.createClass
       locationTypes = for filename in subjectData.locations
         @props.files[filename].type
 
+      console.log("location types should be around here somewhere")
+      console.log(locationTypes)
       subject = apiClient.type('subjects').create
         # Locations are sent as a list of mime types.
         locations: locationTypes
@@ -62,28 +64,28 @@ module.exports = React.createClass
         links:
           project: @props.project.id
 
-      subject.save()
-        .then (subject) =>
-          uploads = for typeToUploadURL, i in subject.locations
-            uploadURL = typeToUploadURL[Object.keys(typeToUploadURL)[0]]
-            putFile uploadURL, @props.files[subjectData.locations[i]]
-          Promise.all(uploads).then (uploads) =>
-            @setState
-              creates: @state.creates.concat subject
-            uploads
-        .then (success) =>
-          @setState
-            uploads: @state.uploads.concat success
-            batch: @state.batch.concat subject
-        .catch (error) =>
-          subject.delete()
-
-          @setState
-            errors: @state.errors.concat error
-        .then =>
-          @setState
-            current: @state.current + 1, =>
-              @processNext()
+      # subject.save()
+      #   .then (subject) =>
+      #     uploads = for typeToUploadURL, i in subject.locations
+      #       uploadURL = typeToUploadURL[Object.keys(typeToUploadURL)[0]]
+      #       putFile uploadURL, @props.files[subjectData.locations[i]]
+      #     Promise.all(uploads).then (uploads) =>
+      #       @setState
+      #         creates: @state.creates.concat subject
+      #       uploads
+      #   .then (success) =>
+      #     @setState
+      #       uploads: @state.uploads.concat success
+      #       batch: @state.batch.concat subject
+      #   .catch (error) =>
+      #     subject.delete()
+      #
+      #     @setState
+      #       errors: @state.errors.concat error
+      #   .then =>
+      #     @setState
+      #       current: @state.current + 1, =>
+      #         @processNext()
 
     else
       @finish()
