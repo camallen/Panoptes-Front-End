@@ -78,7 +78,12 @@ module.exports = React.createClass
           {if @state.showingMissing
             <ul>
               {for file, i in missingFiles
-                <li key={i}>{file}{' is too large' if file in tooBigFiles}</li>}
+                <li key={i}>{file}{
+                  if file in tooBigFiles
+                    ' is too large'
+                  else
+                    ' must be selected along with the manifest'
+                  }</li>}
             </ul>}
         </div>}
 
