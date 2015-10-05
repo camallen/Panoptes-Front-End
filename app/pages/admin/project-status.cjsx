@@ -100,6 +100,46 @@ ProjectRedirectToggle = React.createClass
       </AutoSave>
     </div>
 
+ProjectExperimentalTools = React.createClass
+  displayName: "Project Experimental Tools"
+
+  mixins: [SetToggle]
+
+  getDefaultProps: ->
+    project: null
+
+  getInitialState: ->
+    error: null
+
+  handleToolsChange: (e) ->
+    event =
+      target:
+        value: if value is '' then [] else value.split(',')
+        name: 'experimental_tools'
+        dataset: {}
+    handleInputChange.call @props.project, event
+
+  render: ->
+    <div>
+      <AutoSave resource={@props.project}>
+        <span className="form-label">Experimental Tools</span>
+        <br />
+        <Select
+          ref="tagSearch"
+          multi={@props.multi}
+          name={@props.name}
+          value={value}
+          placeholder="Tags:"
+          className="search standard-input"
+          closeAfterClick={false}
+          onBlur={@saveCurrent}
+          onChange={@props.onChange}
+          onInputChange={@handleInputChange}
+          asyncOptions={debounce(@searchTags, 200)} />
+      </AutoSave>
+      <small className="form-help">Enter a list of tool names separated by commas.</small>
+    </div>
+
 VersionList = React.createClass
   displayName: "VersionList"
 
@@ -139,7 +179,10 @@ ProjectStatus = React.createClass
           <li>Beta Approved: <ProjectToggle project={@props.project} field="beta_approved" /></li>
           <li>Launch Requested: <ProjectToggle project={@props.project} field="launch_requested" /></li>
           <li>Launch Approved: <ProjectToggle project={@props.project} field="launch_approved" /></li>
-          <li><br /><ProjectRedirectToggle project={@props.project} /></li>
+          <br />
+          <li><ProjectRedirectToggle project={@props.project} /></li>
+          <li><ProjectExperimentalTools project={@props.project} /></li>
+
         </ul>
         <h4>Workflow Settings</h4>
         <PromiseRenderer promise={@props.project.get('workflows')}>{(workflows) =>
