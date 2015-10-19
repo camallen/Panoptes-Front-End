@@ -223,12 +223,7 @@ module.exports = new Model
     console?.log 'Signing out'
     @checkCurrent().then (user) =>
       if user?
-        @_getAuthToken().then (token) =>
-
-          deleteHeaders = Object.create JSON_HEADERS
-          deleteHeaders["X-CSRF-Token"] = token
-
-          makeHTTPRequest 'DELETE', config.host + '/users/sign_out', null, deleteHeaders
+          makeHTTPRequest 'DELETE', config.host + '/users/sign_out', null, Object.create JSON_HEADERS
             .then =>
               @_deleteBearerToken()
               @update _currentUserPromise: Promise.resolve null
