@@ -2,11 +2,6 @@
 config = require './config'
 client = require './client'
 
-# Use this to override the default API-specific headers.
-JSON_HEADERS =
-  'Content-Type': 'application/json'
-  'Accept': 'application/json'
-
 # We don't want to wait until the token is already expired before refreshing it.
 TOKEN_EXPIRATION_ALLOWANCE = 10 * 1000
 
@@ -17,7 +12,7 @@ module.exports = new Model
 
   _getAuthToken: ->
     console?.log 'Getting auth token'
-    makeHTTPRequest 'GET', config.host + "/users/sign_in/?now=#{Date.now()}", null, JSON_HEADERS
+    makeHTTPRequest 'GET', config.host + "/users/sign_in/?now=#{Date.now()}", null, config.jsonHeaders
       .then (request) ->
         authToken = request.getResponseHeader 'X-CSRF-Token'
         console?.info "Got auth token #{authToken[...6]}..."
@@ -37,7 +32,7 @@ module.exports = new Model
         grant_type: 'password'
         client_id: config.clientAppID
 
-      makeHTTPRequest 'POST', config.host + '/oauth/token', data, JSON_HEADERS
+      makeHTTPRequest 'POST', config.host + '/oauth/token', data, config.jsonHeaders
         .then (request) =>
           token = @_handleNewBearerToken request
           console?.info "Got bearer token #{token[...6]}..."
@@ -65,7 +60,7 @@ module.exports = new Model
       refresh_token: refreshToken
       client_id: config.clientAppID
 
-    makeHTTPRequest 'POST', config.host + '/oauth/token', data, JSON_HEADERS
+    makeHTTPRequest 'POST', config.host + '/oauth/token', data, config.jsonHeaders
       .then (request) =>
         token = @_handleNewBearerToken request
         console?.info "Refreshed bearer token #{token[...6]}..."
@@ -105,7 +100,7 @@ module.exports = new Model
             user: {login, email, password, credited_name, global_email_communication, project_id, beta_email_communication, project_email_communication}
 
           # This weird URL is actually out of the API, but returns a JSON-API response.
-          client.post '/../users', data, JSON_HEADERS
+          client.post '/../users', data, config.jsonHeaders
             .then =>
               @_getBearerToken().then =>
                 @_getSession().then (user) =>
@@ -150,7 +145,7 @@ module.exports = new Model
             authenticity_token: token
             user: {login, password, remember_me}
 
-          makeHTTPRequest 'POST', config.host + '/users/sign_in', data, JSON_HEADERS
+          makeHTTPRequest 'POST', config.host + '/users/sign_in', data, config.jsonHeaders
             .then =>
               @_getBearerToken().then =>
                 @_getSession().then (user) =>
@@ -177,7 +172,7 @@ module.exports = new Model
               password: replacement
               password_confirmation: replacement
 
-          client.put '/../users', data, JSON_HEADERS
+          client.put '/../users', data, config.jsonHeaders
             .then =>
               @signOut() # Rough, but it'll do for now. Without signing out and back in, the session is lost.
             .then =>
@@ -194,7 +189,7 @@ module.exports = new Model
         authenticity_token: token
         user: {email}
 
-      client.post '/../users/password', data, JSON_HEADERS
+      client.post '/../users/password', data, config.jsonHeaders
 
   resetPassword: ({password, confirmation, token: resetToken}) ->
     @_getAuthToken().then (authToken) =>
@@ -205,7 +200,7 @@ module.exports = new Model
           password_confirmation: confirmation
           reset_password_token: resetToken
 
-      client.put '/../users/password', data, JSON_HEADERS
+      client.put '/../users/password', data, config.jsonHeaders
 
   disableAccount: ->
     console?.log 'Disabling account'
@@ -225,7 +220,7 @@ module.exports = new Model
       if user?
         @_getAuthToken().then (token) =>
 
-          deleteHeaders = Object.create JSON_HEADERS
+          deleteHeaders = Object.create config.jsonHeaders
           deleteHeaders["X-CSRF-Token"] = token
 
           makeHTTPRequest 'DELETE', config.host + '/users/sign_out', null, deleteHeaders
@@ -247,7 +242,7 @@ module.exports = new Model
         authenticity_token: token
         email: email
 
-      makeHTTPRequest 'POST', config.host + '/unsubscribe', data, JSON_HEADERS
+      makeHTTPRequest 'POST', config.host + '/unsubscribe', data, config.jsonHeaders
 
 # For quick debugging:
 window?.zooAuth = module.exports
