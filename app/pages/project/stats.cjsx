@@ -2,6 +2,7 @@ React = require 'react'
 ChartistGraph = require 'react-chartist'
 moment = require 'moment'
 qs = require 'qs'
+PromiseRenderer = require '../../components/promise-renderer'
 config = require '../../api/config'
 {Model, makeHTTPRequest} = require 'json-api-client'
 
@@ -50,9 +51,15 @@ ProjectStatsPage = React.createClass
 
   classification_count: (period) ->
     stats_url = "#{config.statHost}/counts/classification/#{period}/?project_id=#{@props.projectId}"
+    # console.log stats_url
     makeHTTPRequest 'GET', stats_url
       .then (response) =>
-        console?.log response.body
+        results = JSON.parse response.responseText
+        bucket_data = results["events_over_time"]["buckets"]
+        data = bucket_data.map (stat_object) =>
+          label: stat_object.key_as_string
+          value: stat_object.doc_count
+        # console?.log data
       .catch (response) ->
         console?.error 'Failed to get the stats'
 
@@ -89,7 +96,9 @@ ProjectStatsPage = React.createClass
           <option value="week">week</option>
           <option value="month">month</option>
         </select><br />
-        <Graph data={@classification_count(@props.classificationsBy)} />
+        <PromiseRenderer promise={@classification_count(@props.classificationsBy)}>{(classificationData) =>
+          <Graph data={classificationData} />
+        }</PromiseRenderer>
       </div>
 
       <div>
@@ -113,8 +122,8 @@ ProjectStatsPageController = React.createClass
   render: ->
     # console.log @props
     queryProps =
-      classificationsBy: @props.query.classifications
-      volunteersBy: @props.query.volunteers
+      # classificationsBy: @props.query.classifications
+      # volunteersBy: @props.query.volunteers
       projectId: @props.project.id
 
     <ProjectStatsPage {...queryProps} />

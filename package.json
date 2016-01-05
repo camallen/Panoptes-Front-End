@@ -4,6 +4,7 @@
   "dependencies": {
     "animated-scrollto": "~1.1.0",
     "babel": "~5.8.23",
+    "chartist-plugin-axistitle": "0.0.1",
     "coffee-react": "~4.0.0",
     "counterpart": "~0.17.0",
     "data-uri-to-blob": "0.0.4",
@@ -26,7 +27,9 @@
     "sugar-client": "~1.0.1",
     "swipe-js-iso": "~2.0.1",
     "test-shape-closeness": "0.0.1",
+    "qs": "~6.0.0",
     "react": "~0.14.1",
+    "react-chartist": "~0.9.0",
     "react-dom": "^0.14.1",
     "react-interpolate-component": "~0.8.0",
     "react-swipe": "~3.0.0",
