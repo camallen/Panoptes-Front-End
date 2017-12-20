@@ -11,6 +11,7 @@ export default class ProjectPage extends React.Component {
   }
 
   componentDidMount() {
+    console.log("mounted!")
     document.documentElement.classList.add('on-project-page');
     this.updateSugarSubscription(this.props.project);
     this.context.geordi && this.context.geordi.remember({ projectToken: this.props.project.slug });
@@ -18,6 +19,7 @@ export default class ProjectPage extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.project !== this.props.project) {
+      console.log("got new props!")
       this.removeSugarSubscription(this.props.project);
       this.updateSugarSubscription(nextProps.project);
       this.context.geordi && this.context.geordi.remember({ projectToken: nextProps.project.slug });
@@ -25,16 +27,19 @@ export default class ProjectPage extends React.Component {
   }
 
   componentWillUnmount() {
+    console.log("unmounted!")
     document.documentElement.classList.remove('on-project-page');
     this.removeSugarSubscription(this.props.project);
     this.context.geordi && this.context.geordi.forget(['projectToken']);
   }
 
   updateSugarSubscription(project) {
+    console.log("+++subscribe!?");
     sugarClient.subscribeTo(`project-${project.id}`);
   }
 
   removeSugarSubscription(project) {
+    console.log("---unsubscribe!?");
     sugarClient.unsubscribeFrom(`project-${project.id}`);
   }
 
