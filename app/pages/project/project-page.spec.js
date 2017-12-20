@@ -133,19 +133,20 @@ describe('ProjectPage', () => {
     });
   });
 
-  describe('on component lifecycle', () => {
-    const sugarClientSubscribeSpy = sinon.spy(sugarClient, 'subscribeTo');
-    const sugarClientUnsubscribeSpy = sinon.spy(sugarClient, 'unsubscribeFrom');
+  describe.only('sugar subscriptions', function() {
     const channel = `project-${project.id}`;
+    const sugarClientMock = sinon.mock(sugarClient);
     let wrapper;
 
-    afterEach(() => {
-      sugarClientSubscribeSpy.reset();
-      sugarClientUnsubscribeSpy.reset();
+    // so this mock needs to be restored before each run
+    beforeEach(() => {
+      sugarClientMock.restore(); // Unwraps the mock
     });
 
-    describe('on mount/unmount', () => {
-      beforeEach(() => {
+    describe('on component lifecycle', function() {
+
+      it('subscribes the user to the sugar project channel on mount', () => {
+        sugarClientMock.expects('subscribeTo').once().withArgs(channel);
         wrapper = mount(
           <ProjectPage project={project}>
             <Page />
@@ -153,38 +154,37 @@ describe('ProjectPage', () => {
         );
       });
 
-      it('subscribes the user to the sugar project channel on mount', () => {
-        expect(sugarClientSubscribeSpy.calledOnce).to.equal(true);
-        expect(sugarClientSubscribeSpy.calledWith(channel)).to.equal(true);
-      });
-
       it('unsubscribes the user from the sugar project channel on unmount', () => {
+        wrapper = shallow(
+          <ProjectPage project={project}>
+            <Page />
+          </ProjectPage>
+        );
+        sugarClientMock.expects('unsubscribeFrom').once().withArgs(channel);
         wrapper.unmount();
-        expect(sugarClientUnsubscribeSpy.calledOnce).to.equal(true);
-        expect(sugarClientUnsubscribeSpy.calledWith(channel)).to.equal(true);
       });
     });
 
-    describe('on project props change', () => {
+    describe('on project props change', function() {
       const newProject = {id: '999', title: 'fake project', slug: 'owner/name'};
       const newChannel = `project-${newProject.id}`;
+      let wrapper;
       beforeEach(() => {
         wrapper = shallow(
           <ProjectPage project={project}>
             <Page />
           </ProjectPage>
         );
+      });
+
+      it('subscribes new project', () => {
+        sugarClientMock.expects('subscribeTo').once().withArgs(newChannel);
         wrapper.setProps({ project: newProject });
       });
 
       it('unsubscribes old project', () => {
-        expect(sugarClientUnsubscribeSpy.calledOnce).to.equal(true);
-        expect(sugarClientUnsubscribeSpy.calledWith(channel)).to.equal(true);
-      });
-
-      it('subscribes new project', () => {
-        expect(sugarClientSubscribeSpy.calledOnce).to.equal(true);
-        expect(sugarClientSubscribeSpy.calledWith(newChannel)).to.equal(true);
+        sugarClientMock.expects('unsubscribeFrom').once().withArgs(channel);
+        wrapper.setProps({ project: newProject });
       });
     });
   });
