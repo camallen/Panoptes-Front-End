@@ -16,16 +16,18 @@ describe('ClassificationQueue', function() {
     expect(apiClient.saves).to.have.lengthOf(1);
   });
 
-  it('keeps classifications in localStorage if backend fails', function() {
+  it('keeps classifications in localStorage if backend fails', function(done) {
     let apiClient = new FakeApiClient({canSave: () => { return false; }});
     let storage = new FakeLocalStorage();
 
     let classificationData = {annotations: [], metadata: {}};
     let classificationQueue = new ClassificationQueue(storage, apiClient);
-    classificationQueue.add(classificationData);
-
-    expect(apiClient.saves).to.have.lengthOf(0);
-    expect(classificationQueue.length()).to.equal(1);
+    classificationQueue.add(classificationData)
+    .then(function () {
+      expect(apiClient.saves).to.have.lengthOf(0);
+      expect(classificationQueue.length()).to.equal(1);
+    })
+    .then(done, done);
   });
   describe('with a slow network connection', function () {
     let apiClient;
@@ -37,7 +39,7 @@ describe('ClassificationQueue', function() {
         return new Promise(function (resolve, reject) {});
       });
       apiClient = new FakeApiClient();
-      classificationQueue = new ClassificationQueue(window.storage, apiClient);
+      classificationQueue = new ClassificationQueue(window.localStorage, apiClient);
       classificationQueue.add({annotations: [], metadata: {}});
       classificationQueue.add({annotations: [], metadata: {}});
     });
