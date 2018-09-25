@@ -49,8 +49,8 @@ class ClassificationQueue {
       return Promise.all(pendingClassifications.map((classificationData) => {
         return this.apiClient.type('classifications').create(classificationData).save().then((actualClassification) => {
           console.log('Saved classification', actualClassification.id);
-          this.onClassificationSaved(actualClassification);
-          this.addRecent(actualClassification);
+          // this.onClassificationSaved(actualClassification);
+          // this.addRecent(actualClassification);
 
           const indexInQueue = queue.indexOf(classificationData);
           queue.splice(indexInQueue, 1);
@@ -63,7 +63,8 @@ class ClassificationQueue {
           }
         })
         .catch((error) => {
-          if (process.env.BABEL_ENV !== 'test') console.error('Failed to save a queued classification:', error);
+          // if (process.env.BABEL_ENV !== 'test')
+          console.error('Failed to save a queued classification:', error);
 
           if (error.status === 422) {
             console.error('Dropping malformed classification permanently', classificationData);
